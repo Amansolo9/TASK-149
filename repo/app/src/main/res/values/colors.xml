@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary green -->
+    <color name="primary">#1B5E20</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#A5D6A7</color>
+    <color name="on_primary_container">#002204</color>
+
+    <!-- Secondary -->
+    <color name="secondary">#33691E</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#C8E6C9</color>
+    <color name="on_secondary_container">#0D2B00</color>
+
+    <!-- Error -->
+    <color name="error">#B3261E</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Surface / cards / sheets -->
+    <color name="surface">#FFFBFE</color>
+    <color name="on_surface">#1C1B1F</color>
+    <color name="surface_variant">#E7E0EC</color>
+    <color name="on_surface_variant">#49454F</color>
+
+    <!-- Outline (text field borders, dividers) -->
+    <color name="outline">#79747E</color>
+
+    <!-- Background -->
+    <color name="background">#FFFBFE</color>
+    <color name="on_background">#1C1B1F</color>
+</resources>

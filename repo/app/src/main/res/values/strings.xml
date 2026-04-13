@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FieldTrip Ops</string>
+
+    <!-- Login -->
+    <string name="login_title">FieldTrip Ops</string>
+    <string name="login_subtitle">Governance &amp; Claims</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Sign In</string>
+    <string name="login_error_invalid">Invalid username or password</string>
+    <string name="login_error_inactive">Account is inactive</string>
+    <string name="login_error_locked">Account locked. Try again at %1$s</string>
+    <string name="login_error_generic">Login failed. Please try again.</string>
+
+    <!-- Shell -->
+    <string name="logout_button">Sign Out</string>
+    <string name="welcome_message">Welcome, %1$s</string>
+    <string name="role_label">Role: %1$s</string>
+    <string name="shell_placeholder">Dashboard coming in Phase 2</string>
+
+    <!-- General -->
+    <string name="loading">Loading&#8230;</string>
+    <string name="error_generic">An error occurred</string>
+</resources>

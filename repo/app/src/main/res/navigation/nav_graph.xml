@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.fieldtripops.ui.login.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_shell"
+            app:destination="@id/shellFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/shellFragment"
+        android:name="com.fieldtripops.ui.shell.ShellFragment"
+        android:label="Dashboard"
+        tools:layout="@layout/fragment_shell">
+        <action
+            android:id="@+id/action_shell_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_shell_to_wizard"
+            app:destination="@id/itineraryWizardFragment" />
+        <action
+            android:id="@+id/action_shell_to_bookingConfirm"
+            app:destination="@id/bookingConfirmFragment" />
+        <action
+            android:id="@+id/action_shell_to_myClaims"
+            app:destination="@id/myClaimsFragment" />
+        <action
+            android:id="@+id/action_shell_to_reviewQueue"
+            app:destination="@id/reviewQueueFragment" />
+        <action
+            android:id="@+id/action_shell_to_quarantine"
+            app:destination="@id/quarantineFragment" />
+        <action
+            android:id="@+id/action_shell_to_consent"
+            app:destination="@id/consentFragment" />
+        <action
+            android:id="@+id/action_shell_to_slaConfig"
+            app:destination="@id/slaConfigFragment" />
+        <action
+            android:id="@+id/action_shell_to_reports"
+            app:destination="@id/reportsFragment" />
+        <action
+            android:id="@+id/action_shell_to_deletionRequests"
+            app:destination="@id/deletionRequestsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deletionRequestsFragment"
+        android:name="com.fieldtripops.ui.admin.DeletionRequestsFragment"
+        android:label="Deletion Requests"
+        tools:layout="@layout/fragment_deletion_requests" />
+
+    <fragment
+        android:id="@+id/itineraryWizardFragment"
+        android:name="com.fieldtripops.ui.itinerary.ItineraryWizardFragment"
+        android:label="New Itinerary"
+        tools:layout="@layout/fragment_itinerary_wizard" />
+
+    <fragment
+        android:id="@+id/bookingConfirmFragment"
+        android:name="com.fieldtripops.ui.booking.BookingConfirmFragment"
+        android:label="Confirm Booking"
+        tools:layout="@layout/fragment_booking_confirm">
+        <argument android:name="orderId" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/myClaimsFragment"
+        android:name="com.fieldtripops.ui.claims.MyClaimsFragment"
+        android:label="My Claims"
+        tools:layout="@layout/fragment_my_claims">
+        <action
+            android:id="@+id/action_myClaims_to_fileClaim"
+            app:destination="@id/fileClaimFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fileClaimFragment"
+        android:name="com.fieldtripops.ui.claims.FileClaimFragment"
+        android:label="File Claim"
+        tools:layout="@layout/fragment_file_claim" />
+
+    <fragment
+        android:id="@+id/quarantineFragment"
+        android:name="com.fieldtripops.ui.review.QuarantineFragment"
+        android:label="Quarantine"
+        tools:layout="@layout/fragment_quarantine" />
+
+    <fragment
+        android:id="@+id/consentFragment"
+        android:name="com.fieldtripops.ui.consent.ConsentFragment"
+        android:label="Consent"
+        tools:layout="@layout/fragment_consent" />
+
+    <fragment
+        android:id="@+id/reviewQueueFragment"
+        android:name="com.fieldtripops.ui.review.ReviewQueueFragment"
+        android:label="Review Queue"
+        tools:layout="@layout/fragment_review_queue" />
+
+    <fragment
+        android:id="@+id/slaConfigFragment"
+        android:name="com.fieldtripops.ui.admin.SlaConfigFragment"
+        android:label="SLA Configuration"
+        tools:layout="@layout/fragment_sla_config" />
+
+    <fragment
+        android:id="@+id/reportsFragment"
+        android:name="com.fieldtripops.ui.reports.ReportsFragment"
+        android:label="Reports"
+        tools:layout="@layout/fragment_reports" />
+</navigation>
