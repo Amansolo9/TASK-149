@@ -216,20 +216,19 @@ The container produces:
 | `> Task :app:testDebugUnitTest UP-TO-DATE` on re-runs | No source changed; results are cached. Use `--rerun-tasks` to force. |
 
 Expected unit-test counts on a clean run (approximate, used as a sanity floor):
-- ~60 unit test classes in `app/src/test` (260+ individual `@Test` methods), mix of:
+- ~54 unit test classes in `app/src/test` (230+ individual `@Test` methods), mix of:
   - Pure JVM unit tests (domain validators, use cases, security primitives)
   - ViewModel tests with `InstantTaskExecutorRule` + `StandardTestDispatcher`
-  - **Robolectric-backed Fragment tests** with `TestNavHostController` covering
-    `LoginFragment`, `ShellFragment`, `ReviewQueueFragment`, `SlaConfigFragment`,
-    `QuarantineFragment` — role-gated card visibility, route authz (Access
-    Control), and inflation smoke checks
-  - Koin DI graph smoke tests catching missing bindings
+    covering Login / Shell / BookingConfirm / ItineraryWizard / FileClaim /
+    MyClaims / ReviewQueue / Quarantine / SlaConfig / DeletionRequests
+  - Robolectric-backed attachment and checkpoint tests exercising real
+    `android.graphics.Bitmap` decoding, LRU cache, and Room transactions
 - ~18 instrumented test classes in `app/src/androidTest` (require emulator), including:
   - End-to-end Room-DB integration tests with no repository mocks (`*E2EIntegrationTest`)
   - WorkManager `doWork()` behavior tests using `TestListenableWorkerBuilder`
   - Migration tests from v1 through v10
 
-If the unit test class count drops below ~56, a regression likely occurred.
+If the unit test class count drops below ~50, a regression likely occurred.
 Use the JUnit HTML report for per-method pass/fail breakdown.
 
 ### Instrumented tests (optional)

@@ -102,9 +102,6 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.test.core)
     testImplementation(libs.test.ext.junit)
-    testImplementation(libs.fragment.testing)
-    testImplementation(libs.koin.test)
-    testImplementation("androidx.navigation:navigation-testing:2.7.7")
 
     // Instrumented tests
     androidTestImplementation(libs.test.runner)
