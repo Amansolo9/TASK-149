@@ -24,12 +24,14 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Fragment-level Robolectric tests for ReviewQueueFragment: route-level
  * authorization, recycler presence, and empty-state visibility.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class ReviewQueueFragmentRobolectricTest {
 
     private lateinit var claimRepo: ClaimRepository

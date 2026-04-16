@@ -18,6 +18,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.RuntimeEnvironment
 
 /**
@@ -27,6 +28,7 @@ import org.robolectric.RuntimeEnvironment
  * for a runtime crash at app startup.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class KoinModulesSmokeTest : KoinTest {
 
     @After fun teardown() { stopKoin() }

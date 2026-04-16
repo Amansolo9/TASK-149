@@ -10,6 +10,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.ByteArrayOutputStream
 
 /**
@@ -23,6 +24,7 @@ import java.io.ByteArrayOutputStream
  * without an emulator.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class AttachmentPreviewIntegrationTest {
 
     private lateinit var cache: AttachmentImageCache

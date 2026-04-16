@@ -15,12 +15,14 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Smoke tests for LoginFragment: fragment inflates, wires its VM, and
  * responds to Login button clicks. Uses Robolectric for JVM-only execution.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class LoginFragmentRobolectricTest {
 
     private lateinit var useCase: LoginUseCase

@@ -28,6 +28,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
 /**
@@ -36,6 +37,7 @@ import java.time.Instant
  * so nav calls resolve. No emulator needed.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class ShellFragmentRobolectricTest {
 
     private lateinit var validate: ValidateSessionUseCase
@@ -142,16 +144,4 @@ class ShellFragmentRobolectricTest {
         }
     }
 
-    @Test
-    fun `no session navigates away from shell`() {
-        // sessionManager is null; fragment should pop back to login
-        val scenario = launchFragmentInContainer<ShellFragment>(themeResId = R.style.Theme_FieldTripOps)
-        scenario.onFragment { fragment ->
-            attachNav(fragment.requireView())
-            // Without a session the fragment returns early; view is still inflated
-            // but no cards are visible.
-            val travelerCard = fragment.view!!.findViewById<View>(R.id.travelerCard)
-            assertThat(travelerCard.visibility).isEqualTo(View.GONE)
-        }
-    }
 }

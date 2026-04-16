@@ -23,6 +23,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Fragment-level route-authorization tests for QuarantineFragment.
@@ -31,6 +32,7 @@ import org.robolectric.RobolectricTestRunner
  * `popBackStack()` doesn't crash.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class QuarantineFragmentAuthzTest {
 
     private lateinit var contentRepo: ContentRepository

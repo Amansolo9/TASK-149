@@ -24,6 +24,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Fragment-level authorization tests for SlaConfigFragment. Verifies:
@@ -34,6 +35,7 @@ import org.robolectric.RobolectricTestRunner
  * doesn't crash the test.
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class SlaConfigFragmentAuthzTest {
 
     private lateinit var repo: SlaConfigRepository

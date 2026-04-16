@@ -20,6 +20,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
 /**
@@ -31,6 +32,7 @@ import java.time.Instant
  * Uses Robolectric + real in-memory Room DB (no withTransaction mocks).
  */
 @RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class ContentCheckpointCreationTest {
 
     private lateinit var db: FieldTripDatabase
