@@ -45,6 +45,13 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -92,6 +99,12 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.room.ktx)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.test.core)
+    testImplementation(libs.test.ext.junit)
+    testImplementation(libs.fragment.testing)
+    testImplementation(libs.koin.test)
+    testImplementation("androidx.navigation:navigation-testing:2.7.7")
 
     // Instrumented tests
     androidTestImplementation(libs.test.runner)
@@ -101,4 +114,6 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.coroutines.test)
+    androidTestImplementation("androidx.work:work-testing:2.9.0")
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
 }

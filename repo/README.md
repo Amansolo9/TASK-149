@@ -1,5 +1,7 @@
 # FieldTrip Ops — Governance & Claims
 
+**Project Type:** `android`
+
 Offline Android application for managing travel itinerary bookings, quota validation, fee itemization, content quality governance, and post-trip claims handling.
 
 ## Role Surfaces (post-audit fix)
@@ -165,25 +167,86 @@ prompt requirement that only `Cancelled` and `Closed` are terminal.
 
 ## Prerequisites
 
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17
-- Android SDK 34
-- An Android device or emulator running Android 10+ (API 29+)
+Only Docker and Git are required on the host. All JDK / Android SDK / Gradle
+dependencies are provisioned inside the Docker image — no host installs needed.
 
-## Building
+- Docker 20.10+ (Docker Desktop on Windows / macOS, or Docker Engine on Linux)
+- Git
+
+For running the app on a device/emulator (optional, outside Docker): Android
+Studio Hedgehog+ with SDK 34 and a device/emulator running Android 10+.
+
+## Building and Testing (Docker-contained — default)
+
+All build and test commands run inside a container built from the provided
+`Dockerfile`. The `run_tests.sh` script defaults to Docker; no host SDK,
+JDK, or Gradle installation is required.
 
 ```bash
-./gradlew assembleDebug
-./gradlew testDebugUnitTest
+# Default: containerized build + unit tests (no flag needed)
+./run_tests.sh
+
+# Explicit Docker (same as default):
+./run_tests.sh --docker
+
+# Direct Docker invocation (equivalent):
+docker build -t fieldtrip-ops .
+docker run --rm -v "$PWD":/workspace -w /workspace fieldtrip-ops ./gradlew assembleDebug testDebugUnitTest
+
+# Escape hatch — only if you want to use a host Android SDK install:
+./run_tests.sh --local
+```
+
+The default (Docker) is the supported, reproducible path. The `--local`
+escape hatch exists only for developer convenience when iterating with an
+existing Android Studio install; CI and evaluation should always use Docker.
+
+The container produces:
+- `app/build/outputs/apk/debug/app-debug.apk` — installable debug APK
+- `app/build/reports/tests/testDebugUnitTest/index.html` — JUnit test report
+- `app/build/reports/tests/testDebugUnitTest/*.xml` — machine-readable results
+
+### Interpreting test results
+
+| Signal | Meaning |
+|--------|---------|
+| `BUILD SUCCESSFUL` + all tests green in the HTML report | Pass. Proceed with APK. |
+| `BUILD FAILED` from `assembleDebug` | Compilation error; check stack trace at top of log. |
+| Any `FAILED` in `testDebugUnitTest` output | Test failure; open the HTML report for the failing class and assertion. |
+| `> Task :app:testDebugUnitTest UP-TO-DATE` on re-runs | No source changed; results are cached. Use `--rerun-tasks` to force. |
+
+Expected unit-test counts on a clean run (approximate, used as a sanity floor):
+- ~60 unit test classes in `app/src/test` (260+ individual `@Test` methods), mix of:
+  - Pure JVM unit tests (domain validators, use cases, security primitives)
+  - ViewModel tests with `InstantTaskExecutorRule` + `StandardTestDispatcher`
+  - **Robolectric-backed Fragment tests** with `TestNavHostController` covering
+    `LoginFragment`, `ShellFragment`, `ReviewQueueFragment`, `SlaConfigFragment`,
+    `QuarantineFragment` — role-gated card visibility, route authz (Access
+    Control), and inflation smoke checks
+  - Koin DI graph smoke tests catching missing bindings
+- ~18 instrumented test classes in `app/src/androidTest` (require emulator), including:
+  - End-to-end Room-DB integration tests with no repository mocks (`*E2EIntegrationTest`)
+  - WorkManager `doWork()` behavior tests using `TestListenableWorkerBuilder`
+  - Migration tests from v1 through v10
+
+If the unit test class count drops below ~56, a regression likely occurred.
+Use the JUnit HTML report for per-method pass/fail breakdown.
+
+### Instrumented tests (optional)
+
+Instrumented tests require a live emulator/device and are run outside the
+container:
+
+```bash
 ./gradlew connectedDebugAndroidTest
 ```
 
-## Running
+## Running the app on an emulator/device
 
-1. Open the project in Android Studio
-2. Select a device/emulator running Android 10+
-3. Run the `app` configuration
-4. The app boots to a login screen; first launch seeds demo users
+1. Build the APK via Docker as above.
+2. Install on a connected device/emulator: `adb install -r app/build/outputs/apk/debug/app-debug.apk`
+3. Or open the project in Android Studio and press Run (non-Docker path).
+4. First launch seeds demo users (debug builds only).
 
 ## Demo Credentials
 
@@ -194,6 +257,57 @@ prompt requirement that only `Cancelled` and `Closed` are terminal.
 | reviewer   | reviewer123   | Reviewer      |
 | traveler   | traveler123   | Traveler      |
 | inactive   | inactive123   | Traveler (inactive) |
+
+## Verification Workflow
+
+After installing the APK on an emulator/device, run the following end-to-end
+checks to confirm the system works. Each step lists the action, the expected
+outcome, and the observable evidence.
+
+### 1. Authentication
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 1a | Launch app; enter `traveler` / `traveler123`; tap Sign in | Navigates to Dashboard with role "Traveler" shown |
+| 1b | Log out; enter `traveler` / `wrong` five times | After 5 failures, error shows "Account locked until HH:MM:SS" |
+| 1c | Launch app; enter `inactive` / `inactive123` | Error: "Account is inactive" |
+
+### 2. Traveler flow (traveler / traveler123)
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 2a | Tap "+ New Itinerary"; enter initials "TR", party size 2, type "standard"; Next | Advances to Dates step |
+| 2b | Enter start/end MM/DD/YYYY; Next; pick an available slot; Submit | Success toast; returns to Dashboard; booking appears in "My Bookings" with state `PendingConfirmation` |
+| 2c | Tap "My Claims" → "File Claim"; enter booking ID from 2b; attach an image or PDF; Submit | Before the 7-day post-trip window, error "Claim filing window closed" or "Booking not ended yet" — expected for a still-pending booking |
+
+### 3. Agent flow (agent / agent123)
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 3a | Log in as `agent`; verify dashboard shows "Pending Confirmation Queue" card | Card populated with at least one booking created in step 2b |
+| 3b | Tap a pending booking; add a fee line (Base, $50.00); tap Confirm | Success; booking state transitions to `Booked`; returns to Dashboard |
+| 3c | Long-press the now-Booked booking; enter reschedule request | Dialog confirms request queued |
+
+### 4. Reviewer flow (reviewer / reviewer123)
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 4a | Log in as `reviewer`; tap "Review Queue" | Queue shows open claim tickets |
+| 4b | Tap "Quarantine" | Shows any content items in Quarantined state; "Restore" button visible |
+| 4c | Tap Restore on a quarantined item | Toast: "Rolled back to checkpoint 'pre-quarantine'" OR "No rollback checkpoint found" |
+
+### 5. Administrator flow (admin / admin123)
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 5a | Log in as `admin`; tap "SLA Configuration" | Loads current SLA: firstResponse=240, resolution=4320, noResponse=72, workDay 9-17, excludeWeekends=on |
+| 5b | Change firstResponse to 60; toggle excludeWeekends off; Save | Success message with timestamp; audit log records `SLA_CHANGED` |
+| 5c | Tap "Deletion Requests" | Shows any pending requests; Administrator can approve/execute |
+| 5d | Tap "Open Reports"; run Bookings-By-State report | Returns counts grouped by state |
+
+### 6. Cross-role authorization (fail-closed checks)
+| Step | Action | Expected Outcome |
+|------|--------|-------------------|
+| 6a | As Traveler, attempt to open a Booking Confirm URL/deeplink crafted with another traveler's booking ID | UI shows "Not authorized" and no booking details are displayed |
+| 6b | As Traveler, attempt to navigate to SLA Configuration | Toast: "Access denied — Administrator role required"; navigates back |
+
+Failing any step above indicates a regression. File an issue with the step
+number, device/emulator details, and the logcat slice from the action.
 
 ## Project Structure
 

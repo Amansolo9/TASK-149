@@ -143,6 +143,25 @@ run_docker_tests() {
 }
 
 # ─────────────────────────────────────────────
+# Flags
+# ─────────────────────────────────────────────
+# Default: Docker-contained run (strict). Opt out with --local if you have a
+# local Android SDK and Gradle installation and want to skip the container.
+FORCE_DOCKER=1
+for arg in "$@"; do
+    case "$arg" in
+        --docker) FORCE_DOCKER=1 ;;
+        --local) FORCE_DOCKER=0 ;;
+        -h|--help)
+            echo "Usage: $0 [--docker|--local]"
+            echo "  --docker  (default) Containerized run; no host SDK required"
+            echo "  --local   Use host Android SDK/Gradle (disables Docker default)"
+            exit 0
+            ;;
+    esac
+done
+
+# ─────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────
 if [ -d "tests/unit_tests" ]; then
@@ -156,7 +175,9 @@ if [ -d "tests/unit_tests" ]; then
     done
     echo ""
 
-    if [ -f "./gradlew" ] && ensure_gradle_wrapper && ensure_local_properties; then
+    if [ "$FORCE_DOCKER" -eq 1 ]; then
+        run_docker_tests
+    elif [ -f "./gradlew" ] && ensure_gradle_wrapper && ensure_local_properties; then
         run_gradle_tests
     else
         run_docker_tests
