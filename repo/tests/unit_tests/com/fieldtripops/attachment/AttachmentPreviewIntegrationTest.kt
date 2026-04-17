@@ -46,57 +46,63 @@ class AttachmentPreviewIntegrationTest {
     }
 
     @Test
-    fun `computeInSampleSize downsamples large images`() {
+    fun computeInSampleSize_downsamples_large_images() {
         val sample = ImageDecoder.computeInSampleSize(4096, 4096, 1024)
         assertThat(sample).isAtLeast(4)
         assertThat(4096 / sample).isAtMost(1024)
     }
 
     @Test
-    fun `computeInSampleSize returns 1 for small images`() {
+    fun computeInSampleSize_returns_1_for_small_images() {
         assertThat(ImageDecoder.computeInSampleSize(512, 512, 1024)).isEqualTo(1)
     }
 
     @Test
-    fun `computeInSampleSize handles zero dimensions`() {
+    fun computeInSampleSize_handles_zero_dimensions() {
         assertThat(ImageDecoder.computeInSampleSize(0, 0, 1024)).isEqualTo(1)
         assertThat(ImageDecoder.computeInSampleSize(100, 100, 0)).isEqualTo(1)
     }
 
     @Test
-    fun `decodeFromBytes returns bitmap for small image`() = runBlocking {
-        val jpeg = makeJpegBytes(200, 200)
-        val decoded = ImageDecoder.decodeFromBytes(jpeg, maxDimensionPx = 1024)
-        assertThat(decoded).isNotNull()
-        assertThat(decoded!!.width).isAtMost(200)
-        assertThat(decoded.height).isAtMost(200)
-    }
-
-    @Test
-    fun `decodeFromBytes downsamples oversized image below maxDimension`() = runBlocking {
-        val jpeg = makeJpegBytes(4096, 4096)
-        val decoded = ImageDecoder.decodeFromBytes(jpeg, maxDimensionPx = 512)
-        assertThat(decoded).isNotNull()
-        // After downsample both dims should be at most maxDimension
-        assertThat(decoded!!.width).isAtMost(1024) // power-of-two sampler may overshoot
-        assertThat(decoded.height).isAtMost(1024)
-    }
-
-    @Test
-    fun `decodeFromBytes does not throw for non-image bytes`() = runBlocking {
-        // Robolectric's BitmapFactory may return either null OR a default bitmap
-        // for garbage input. Real Android returns null, but we only assert the
-        // path does not crash, preserving the safety contract.
-        val notAnImage = "this is not an image".toByteArray()
-        try {
-            ImageDecoder.decodeFromBytes(notAnImage)
-        } catch (t: Throwable) {
-            throw AssertionError("decodeFromBytes must not throw on bad input", t)
+    fun decodeFromBytes_returns_bitmap_for_small_image() {
+        runBlocking {
+            val jpeg = makeJpegBytes(200, 200)
+            val decoded = ImageDecoder.decodeFromBytes(jpeg, maxDimensionPx = 1024)
+            assertThat(decoded).isNotNull()
+            assertThat(decoded!!.width).isAtMost(200)
+            assertThat(decoded.height).isAtMost(200)
         }
     }
 
     @Test
-    fun `cache put and get round-trips a bitmap`() {
+    fun decodeFromBytes_downsamples_oversized_image_below_maxDimension() {
+        runBlocking {
+            val jpeg = makeJpegBytes(4096, 4096)
+            val decoded = ImageDecoder.decodeFromBytes(jpeg, maxDimensionPx = 512)
+            assertThat(decoded).isNotNull()
+            // power-of-two sampler may overshoot below maxDimension, so allow <=1024
+            assertThat(decoded!!.width).isAtMost(1024)
+            assertThat(decoded.height).isAtMost(1024)
+        }
+    }
+
+    @Test
+    fun decodeFromBytes_does_not_throw_for_non_image_bytes() {
+        runBlocking {
+            // Robolectric's BitmapFactory may return either null OR a default bitmap
+            // for garbage input. Real Android returns null, but we only assert the
+            // path does not crash, preserving the safety contract.
+            val notAnImage = "this is not an image".toByteArray()
+            try {
+                ImageDecoder.decodeFromBytes(notAnImage)
+            } catch (t: Throwable) {
+                throw AssertionError("decodeFromBytes must not throw on bad input", t)
+            }
+        }
+    }
+
+    @Test
+    fun cache_put_and_get_round_trips_a_bitmap() {
         val jpeg = makeJpegBytes(64, 64)
         val bitmap = runBlocking { ImageDecoder.decodeFromBytes(jpeg) }!!
         cache.put("k1", bitmap)
@@ -106,7 +112,7 @@ class AttachmentPreviewIntegrationTest {
     }
 
     @Test
-    fun `cache evictAll clears entries`() {
+    fun cache_evictAll_clears_entries() {
         val jpeg = makeJpegBytes(64, 64)
         val bitmap = runBlocking { ImageDecoder.decodeFromBytes(jpeg) }!!
         cache.put("k1", bitmap)
@@ -116,19 +122,19 @@ class AttachmentPreviewIntegrationTest {
     }
 
     @Test
-    fun `cache respects max size bound`() {
+    fun cache_respects_max_size_bound() {
         assertThat(cache.maxSizeKb()).isEqualTo(4 * 1024)
     }
 
     @Test
-    fun `non-image MIME types are correctly identified`() {
+    fun non_image_MIME_types_are_correctly_identified() {
         assertThat("application/pdf".startsWith("image/")).isFalse()
         assertThat("image/jpeg".startsWith("image/")).isTrue()
         assertThat("image/png".startsWith("image/")).isTrue()
     }
 
     @Test
-    fun `cache hits occur for repeated loads via same key`() {
+    fun cache_hits_occur_for_repeated_loads_via_same_key() {
         val jpeg = makeJpegBytes(64, 64)
         val bitmap = runBlocking { ImageDecoder.decodeFromBytes(jpeg) }!!
         cache.put("k1", bitmap)
